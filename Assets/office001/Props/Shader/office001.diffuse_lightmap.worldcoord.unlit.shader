@@ -1,9 +1,10 @@
-﻿Shader "office01/diffuse_lightmap"
+﻿Shader "office01/diffuse_lightmap_worldcoord"
 {
     Properties
     {
-        _MainTex ("Diffuse", 2D) = "white" {}
-        _Lightmap ("Lightmap", 2D) = "white" {}
+        [NoScaleOffset] _MainTex ("Diffuse", 2D) = "white" {}
+        [NoScaleOffset] _Lightmap ("Lightmap", 2D) = "white" {}
+        _LightIntensity ("LightIntensity", float) = 1.0
     }
     SubShader
     {
@@ -23,39 +24,50 @@
             struct appdata
             {
                 float4 vertex : POSITION;
-                float2 uv : TEXCOORD0;
+                float3 normal: NORMAL;
                 float2 uv2 : TEXCOORD1;
             };
 
             struct v2f
             {
-                float2 uv : TEXCOORD0;
+                float3 uv : TEXCOORD0;
                 float2 uv2 : TEXCOORD1;
-                UNITY_FOG_COORDS(1)
+                float3 normal : NORMAL;
+                UNITY_FOG_COORDS(2)
                 float4 vertex : SV_POSITION;
             };
 
             sampler2D _MainTex;
             sampler2D _Lightmap;
-            float4 _MainTex_ST;
-            float4 _Lightmap_ST;
+            float _LightIntensity;
 
             v2f vert (appdata v)
             {
                 v2f o;
                 o.vertex = UnityObjectToClipPos(v.vertex);
-                o.uv = TRANSFORM_TEX(v.uv, _MainTex);
-                o.uv2 = TRANSFORM_TEX(v.uv2, _Lightmap);
+                o.uv = v.vertex;
+                o.uv2 = v.uv2;
+                o.normal = v.normal;
                 UNITY_TRANSFER_FOG(o,o.vertex);
                 return o;
             }
 
             fixed4 frag (v2f i) : SV_Target
             {
+                // Triplaner
+                float2 tx = i.uv.yz * 100.0;
+                float2 ty = i.uv.zx * 100.0;
+                float2 tz = i.uv.xy * 100.0;
+
+                // Blending factor of triplaner mapping
+                float3 bf = normalize(abs(i.normal));
+
                 // sample the texture
-                fixed4 col = tex2D(_MainTex, i.uv);
+                fixed4 col = tex2D(_MainTex, tx) * bf.x + tex2D(_MainTex, ty) * bf.y + tex2D(_MainTex, tz) * bf.z;
+
                 // multiply lightmap
-                col *= tex2D(_Lightmap, i.uv2);
+                col *= tex2D(_Lightmap, i.uv2) * _LightIntensity;
+                
                 // apply fog
                 UNITY_APPLY_FOG(i.fogCoord, col);
                 return col;
