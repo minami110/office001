@@ -1,0 +1,248 @@
+#! /home/minami/.local/Nuke/13.2v2/libnuke-13.2.2.so -nx
+#write_info Write1 file:"/home/minami/Desktop/myfirstclustervrscene/modeling/render/wall_floor.lightmap.Utility - Linear - sRGB.512.exr" format:"512 512 1" chans:":rgba.red:rgba.green:rgba.blue:" framerange:"1 100" fps:"0" colorspace:"Utility - Linear - sRGB" datatype:"16 bit half" transfer:"unknown" views:"main" colorManagement:"OCIO"
+version 13.2 v2
+define_window_layout_xml {<?xml version="1.0" encoding="UTF-8"?>
+<layout version="1.0">
+    <window x="0" y="1472" w="2560" h="1371" maximized="1" screen="0">
+        <splitter orientation="1">
+            <split size="40"/>
+            <dock id="" hideTitles="1" activePageId="Toolbar.1">
+                <page id="Toolbar.1"/>
+            </dock>
+            <split size="1897" stretch="1"/>
+            <splitter orientation="2">
+                <split size="780"/>
+                <dock id="" activePageId="Viewer.1">
+                    <page id="Viewer.1"/>
+                </dock>
+                <split size="548"/>
+                <dock id="" activePageId="DAG.1" focus="true">
+                    <page id="DAG.1"/>
+                    <page id="Curve Editor.1"/>
+                    <page id="DopeSheet.1"/>
+                </dock>
+            </splitter>
+            <split size="615"/>
+            <dock id="" activePageId="Properties.1">
+                <page id="Properties.1"/>
+                <page id="uk.co.thefoundry.backgroundrenderview.1"/>
+            </dock>
+        </splitter>
+    </window>
+</layout>
+}
+Root {
+ inputs 0
+ name /home/minami/Desktop/myfirstclustervrscene/lightmap.nk
+ format "2048 1556 0 0 2048 1556 1 2K_Super_35(full-ap)"
+ proxy_type scale
+ proxy_format "1024 778 0 0 1024 778 1 1K_Super_35(full-ap)"
+ colorManagement OCIO
+ OCIO_config aces_1.2
+ defaultViewerLUT "OCIO LUTs"
+ workingSpaceLUT scene_linear
+ monitorLut ACES/sRGB
+ monitorOutLUT "sRGB (ACES)"
+ int8Lut matte_paint
+ int16Lut texture_paint
+ logLut compositing_log
+ floatLut scene_linear
+}
+Read {
+ inputs 0
+ file_type exr
+ file /home/minami/Desktop/myfirstclustervrscene/modeling/render/bake_obj_wall_floor_specular.exr
+ format "2048 2048 0 0 2048 2048 1 square_2K"
+ origset true
+ name Read7
+ xpos 620
+ ypos 175
+}
+Read {
+ inputs 0
+ file_type exr
+ file /home/minami/Desktop/myfirstclustervrscene/modeling/render/bake_obj_wall_floor_diffuse_albedo.exr
+ format "2048 2048 0 0 2048 2048 1 square_2K"
+ origset true
+ version 1
+ name Read6
+ xpos 309
+ ypos 48
+}
+set N9952590 [stack 0]
+Read {
+ inputs 0
+ file_type exr
+ file /home/minami/Desktop/myfirstclustervrscene/modeling/render/bake_obj_wall_floor_diffuse_indirect.exr
+ format "2048 2048 0 0 2048 2048 1 square_2K"
+ origset true
+ version 7
+ colorspace compositing_linear
+ name Read4
+ xpos 437
+ ypos -216
+}
+set N984a130 [stack 0]
+Read {
+ inputs 0
+ file_type exr
+ file /home/minami/Desktop/myfirstclustervrscene/modeling/render/bake_obj_wall_floor_diffuse_direct.exr
+ format "2048 2048 0 0 2048 2048 1 square_2K"
+ origset true
+ version 4
+ colorspace compositing_linear
+ name Read5
+ xpos 180
+ ypos -240
+}
+set N9d28900 [stack 0]
+MergeExpression {
+ inputs 2
+ expr0 Ar+Br
+ expr1 Ag+Bg
+ expr2 Ab+Bb
+ name MergeExpression7
+ xpos -199
+ ypos -34
+}
+MergeExpression {
+ inputs 2
+ expr0 B.r/A.r
+ expr1 B.g/A.g
+ expr2 B.b/A.b
+ name MergeExpression8
+ xpos -13
+ ypos 38
+}
+set N99e4ce0 [stack 0]
+NoOp {
+ name lightmap
+ xpos -150
+ ypos 86
+}
+set N9930580 [stack 0]
+push $N9952590
+MergeExpression {
+ inputs 2
+ expr0 Ar*Br
+ expr1 Ag*Bg
+ expr2 Ab*Bb
+ name MergeExpression4
+ xpos 152
+ ypos 192
+}
+NoOp {
+ name direct
+ xpos 152
+ ypos 254
+}
+MergeExpression {
+ inputs 2
+ expr0 Ar+Br
+ expr1 Ag+Bg
+ expr2 Ab+Bb
+ name MergeExpression6
+ xpos 400
+ ypos 350
+}
+NoOp {
+ name beauty
+ xpos 290
+ ypos 459
+}
+Read {
+ inputs 0
+ file_type exr
+ file /home/minami/Desktop/myfirstclustervrscene/modeling/render/bake_obj_wall_floor_diffuse_albedo.exr
+ format "2048 2048 0 0 2048 2048 1 square_2K"
+ origset true
+ version 11
+ colorspace compositing_linear
+ name Read3
+ xpos 620
+ ypos -192
+}
+set Nb296890 [stack 0]
+push $N984a130
+MergeExpression {
+ inputs 2
+ expr0 "B.r / A.r"
+ expr1 "B.g / A.g"
+ expr2 "B.b / A.b"
+ name MergeExpression2
+ xpos 564
+ ypos -34
+}
+push $Nb296890
+push $N9d28900
+MergeExpression {
+ inputs 2
+ expr0 "B.r / A.r"
+ expr1 "B.g / A.g"
+ expr2 "B.b / A.b"
+ name MergeExpression1
+ xpos 312
+ ypos -31
+}
+MergeExpression {
+ inputs 2
+ expr0 Ar+Br
+ expr1 Ag+Bg
+ expr2 Ab+Bb
+ name MergeExpression3
+ xpos 449
+ ypos 62
+}
+push $N9d28900
+Viewer {
+ frame_range 1-100
+ viewerProcess "sRGB (ACES)"
+ name Viewer2
+ xpos 49
+ ypos 274
+}
+Read {
+ inputs 0
+ file_type exr
+ file /home/minami/Desktop/myfirstclustervrscene/modeling/render/bake_obj_wall_floor.exr
+ format "2048 2048 0 0 2048 2048 1 square_2K"
+ origset true
+ version 6
+ name Read1
+ xpos -340
+ ypos 120
+}
+push $N99e4ce0
+push 0
+push $N9930580
+Remove {
+ operation keep
+ channels rgb
+ name Remove1
+ xpos -113
+ ypos 319
+}
+Reformat {
+ format "512 512 0 0 512 512 1 square_512"
+ name Reformat1
+ xpos -113
+ ypos 367
+}
+Write {
+ file "/home/minami/Desktop/myfirstclustervrscene/modeling/render/wall_floor.lightmap.Utility - Linear - sRGB.512.exr"
+ colorspace "Utility - Linear - sRGB"
+ file_type exr
+ first_part rgba
+ version 2
+ name Write1
+ xpos -113
+ ypos 418
+}
+Viewer {
+ inputs 3
+ frame_range 1-100
+ viewerProcess "sRGB (ACES)"
+ name Viewer1
+ xpos -302
+ ypos 518
+}
