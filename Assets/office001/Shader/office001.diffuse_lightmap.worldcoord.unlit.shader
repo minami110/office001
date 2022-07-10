@@ -55,9 +55,10 @@
             fixed4 frag (v2f i) : SV_Target
             {
                 // Triplaner
-                float2 tx = i.uv.yz * 100.0;
-                float2 ty = i.uv.zx * 100.0;
-                float2 tz = i.uv.xy * 100.0;
+                float triplanerscale = 100.0;
+                float2 tx = i.uv.yz * triplanerscale;
+                float2 ty = i.uv.zx * triplanerscale;
+                float2 tz = i.uv.xy * triplanerscale;
 
                 // Blending factor of triplaner mapping
                 float3 bf = normalize(abs(i.normal));
@@ -66,7 +67,8 @@
                 fixed4 col = tex2D(_MainTex, tx) * bf.x + tex2D(_MainTex, ty) * bf.y + tex2D(_MainTex, tz) * bf.z;
 
                 // multiply lightmap
-                col *= tex2D(_Lightmap, i.uv2) * _LightIntensity;
+                col *= pow(tex2D(_Lightmap, i.uv2) * _LightIntensity, 1.444444);
+                // col *= tex2D(_Lightmap, i.uv2) * _LightIntensity;
                 
                 // apply fog
                 UNITY_APPLY_FOG(i.fogCoord, col);
